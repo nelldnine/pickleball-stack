@@ -88,8 +88,12 @@ function SidePanel({
             : "border-black/10 dark:border-white/10 hover:border-emerald-500 hover:bg-emerald-500/5 active:scale-[0.99]"
       } ${disabled ? "cursor-default" : "cursor-pointer"}`}
     >
-      <span className="font-medium">{names.join(" & ")}</span>
-      {won && <span className="text-emerald-600 dark:text-emerald-400">✓ Won</span>}
+      <span className="min-w-0 truncate font-medium">{names.join(" & ")}</span>
+      {won && (
+        <span className="shrink-0 pl-2 text-emerald-600 dark:text-emerald-400">
+          ✓ Won
+        </span>
+      )}
     </button>
   );
 }

@@ -157,18 +157,18 @@ export default async function SessionPage({
           {standings.map((p, i) => (
             <div
               key={p.id}
-              className="flex items-center justify-between border-b border-black/5 dark:border-white/5 px-4 py-2.5 last:border-0"
+              className="flex items-center justify-between gap-3 border-b border-black/5 dark:border-white/5 px-4 py-2.5 last:border-0"
             >
-              <div className="flex items-center gap-3">
-                <span className="w-5 text-sm text-black/40 dark:text-white/40">
+              <div className="flex min-w-0 items-center gap-3">
+                <span className="w-5 shrink-0 text-sm text-black/40 dark:text-white/40">
                   {i + 1}
                 </span>
-                <span className="font-medium">
+                <span className="truncate font-medium">
                   {i === 0 && p.wins > 0 ? "👑 " : ""}
                   {p.name}
                 </span>
               </div>
-              <span className="text-sm text-black/60 dark:text-white/60 tabular-nums">
+              <span className="shrink-0 text-sm text-black/60 dark:text-white/60 tabular-nums">
                 {p.wins}W · {p.losses}L
               </span>
             </div>

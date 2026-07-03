@@ -64,7 +64,7 @@ export default async function RankingsPage({
 
       {/* Player scoreboard */}
       <div className="overflow-hidden rounded-2xl border border-black/10 dark:border-white/10">
-        <div className="grid grid-cols-[2.5rem_1fr_3rem_3rem_3.5rem] gap-2 border-b border-black/10 dark:border-white/10 bg-black/[0.03] dark:bg-white/[0.04] px-4 py-2.5 text-xs font-semibold uppercase tracking-wide text-black/40 dark:text-white/40">
+        <div className="grid grid-cols-[1.75rem_1fr_2.25rem_2.25rem_3rem] gap-2 border-b border-black/10 dark:border-white/10 bg-black/[0.03] dark:bg-white/[0.04] px-3 py-2.5 text-xs font-semibold uppercase tracking-wide text-black/40 dark:text-white/40 sm:px-4">
           <span>#</span>
           <span>Player</span>
           <span className="text-right">W</span>
@@ -74,12 +74,12 @@ export default async function RankingsPage({
         {players.map((p, i) => (
           <div
             key={p.id}
-            className={`grid grid-cols-[2.5rem_1fr_3rem_3rem_3.5rem] items-center gap-2 border-b border-black/5 dark:border-white/5 px-4 py-3 last:border-0 ${
+            className={`grid grid-cols-[1.75rem_1fr_2.25rem_2.25rem_3rem] items-center gap-2 border-b border-black/5 dark:border-white/5 px-3 py-3 last:border-0 sm:px-4 ${
               i === 0 && leader ? "bg-emerald-500/10" : ""
             }`}
           >
             <span className="text-sm">{medal(i)}</span>
-            <span className="font-medium">{p.name}</span>
+            <span className="min-w-0 truncate font-medium">{p.name}</span>
             <span className="text-right tabular-nums text-emerald-600 dark:text-emerald-400">
               {p.wins}
             </span>
@@ -103,15 +103,15 @@ export default async function RankingsPage({
             {teams.map((t, i) => (
               <div
                 key={t.id}
-                className="flex items-center justify-between border-b border-black/5 dark:border-white/5 px-4 py-3 last:border-0"
+                className="flex items-center justify-between gap-3 border-b border-black/5 dark:border-white/5 px-4 py-3 last:border-0"
               >
-                <div className="flex items-center gap-3">
-                  <span className="w-5 text-sm">{medal(i)}</span>
-                  <span className="font-medium">
+                <div className="flex min-w-0 items-center gap-3">
+                  <span className="w-5 shrink-0 text-sm">{medal(i)}</span>
+                  <span className="truncate font-medium">
                     {t.players.map((p) => p.name).join(" & ")}
                   </span>
                 </div>
-                <span className="text-sm tabular-nums text-black/60 dark:text-white/60">
+                <span className="shrink-0 text-sm tabular-nums text-black/60 dark:text-white/60">
                   {t.wins}W · {t.losses}L
                 </span>
               </div>

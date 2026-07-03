@@ -97,11 +97,12 @@ export function SetupForm() {
   return (
     <div className="flex flex-col gap-6">
       {/* Match settings */}
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-3 gap-2 sm:gap-3">
         <div>
           <label className={labelCls}>Hours</label>
           <input
             type="number"
+            inputMode="decimal"
             min={0.5}
             step={0.5}
             value={hours}
@@ -113,6 +114,7 @@ export function SetupForm() {
           <label className={labelCls}>Courts</label>
           <input
             type="number"
+            inputMode="numeric"
             min={1}
             value={courts}
             onChange={(e) => setCourts(Number(e.target.value))}
@@ -120,9 +122,10 @@ export function SetupForm() {
           />
         </div>
         <div>
-          <label className={labelCls}>Min / game</label>
+          <label className={labelCls}>Min/game</label>
           <input
             type="number"
+            inputMode="numeric"
             min={1}
             value={gameMinutes}
             onChange={(e) => setGameMinutes(Number(e.target.value))}
@@ -167,7 +170,7 @@ export function SetupForm() {
             <button
               type="button"
               onClick={() => setPlayerCount(names.length - 1)}
-              className="h-8 w-8 rounded-lg border border-black/15 dark:border-white/15 text-lg leading-none disabled:opacity-40"
+              className="h-10 w-10 rounded-lg border border-black/15 dark:border-white/15 text-xl leading-none disabled:opacity-40 active:scale-95 transition"
               disabled={names.length <= 4}
               aria-label="Remove a player"
             >
@@ -176,7 +179,7 @@ export function SetupForm() {
             <button
               type="button"
               onClick={() => setPlayerCount(names.length + 1)}
-              className="h-8 w-8 rounded-lg border border-black/15 dark:border-white/15 text-lg leading-none disabled:opacity-40"
+              className="h-10 w-10 rounded-lg border border-black/15 dark:border-white/15 text-xl leading-none disabled:opacity-40 active:scale-95 transition"
               disabled={names.length >= 40}
               aria-label="Add a player"
             >
