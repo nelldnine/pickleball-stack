@@ -1,0 +1,79 @@
+// Pickleball stacking app — data model
+// Prisma 7 with the better-sqlite3 driver adapter.
+
+generator client {
+  provider = "prisma-client"
+  output   = "../lib/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model Session {
+  id          String   @id @default(cuid())
+  createdAt   DateTime @default(now())
+  hours       Float
+  courts      Int
+  gameMinutes Int
+  mode        String // "rotation" | "fixed"
+  totalRounds Int
+  status      String   @default("active") // "active" | "completed"
+
+  players Player[]
+  teams   Team[]
+  games   Game[]
+}
+
+model Team {
+  id        String  @id @default(cuid())
+  sessionId String
+  session   Session @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  label     String
+  court     Int? // current court in stacking (null = resting)
+  restRank  Int? // queue order while resting (lower = enters sooner)
+  wins      Int     @default(0)
+  losses    Int     @default(0)
+
+  players Player[]
+}
+
+model Player {
+  id          String  @id @default(cuid())
+  sessionId   String
+  session     Session @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  name        String
+  wins        Int     @default(0)
+  losses      Int     @default(0)
+  gamesPlayed Int     @default(0)
+
+  teamId String?
+  team   Team?   @relation(fields: [teamId], references: [id], onDelete: SetNull)
+
+  gamePlayers GamePlayer[]
+}
+
+model Game {
+  id         String  @id @default(cuid())
+  sessionId  String
+  session    Session @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  round      Int
+  court      Int
+  status     String  @default("pending") // "pending" | "completed"
+  winnerSide Int? // 1 | 2 | null
+
+  players GamePlayer[]
+
+  @@index([sessionId, round])
+}
+
+model GamePlayer {
+  id       String @id @default(cuid())
+  gameId   String
+  game     Game   @relation(fields: [gameId], references: [id], onDelete: Cascade)
+  playerId String
+  player   Player @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  side     Int // 1 | 2
+
+  @@index([gameId])
+}

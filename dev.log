@@ -1,0 +1,15 @@
+
+> pickleball-stack-v2@0.1.0 dev
+> next dev
+
+▲ Next.js 16.2.10 (Turbopack)
+- Local:         http://localhost:3000
+- Network:       http://192.168.254.139:3000
+- Environments: .env
+✓ Ready in 184ms
+
+ GET / 200 in 1580ms (next.js: 1526ms, application-code: 54ms)
+ GET /session/cmr4tydpk001fmqal9eqqxfow 200 in 460ms (next.js: 335ms, application-code: 125ms)
+ GET /session/cmr4tydpk001fmqal9eqqxfow/rankings 200 in 324ms (next.js: 267ms, application-code: 57ms)
+ GET /session/cmr4tzl2t0000pcallzavk7m0 200 in 30ms (next.js: 3ms, application-code: 27ms)
+[?25h
