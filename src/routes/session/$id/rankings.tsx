@@ -1,24 +1,19 @@
-import Link from "next/link";
-import { notFound } from "next/navigation";
-import { prisma } from "@/lib/prisma";
+import { Link, createFileRoute } from "@tanstack/react-router";
+import { getRankings } from "@/lib/actions";
+
+export const Route = createFileRoute("/session/$id/rankings")({
+  loader: ({ params }) => getRankings({ data: { id: params.id } }),
+  component: RankingsPage,
+});
 
 function winPct(wins: number, played: number): string {
   if (played === 0) return "—";
   return `${Math.round((wins / played) * 100)}%`;
 }
 
-export default async function RankingsPage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
-  const { id } = await params;
-
-  const session = await prisma.session.findUnique({
-    where: { id },
-    include: { players: true, teams: { include: { players: true } } },
-  });
-  if (!session) notFound();
+function RankingsPage() {
+  const { id } = Route.useParams();
+  const session = Route.useLoaderData();
 
   const players = [...session.players].sort(
     (a, b) =>
@@ -40,7 +35,8 @@ export default async function RankingsPage({
   return (
     <main className="mx-auto w-full max-w-2xl px-5 py-8">
       <Link
-        href={`/session/${id}`}
+        to="/session/$id"
+        params={{ id }}
         className="text-sm text-black/50 dark:text-white/50 hover:underline"
       >
         ← Back to match

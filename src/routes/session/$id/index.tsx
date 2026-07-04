@@ -1,36 +1,15 @@
-import Link from "next/link";
-import { notFound } from "next/navigation";
-import { prisma } from "@/lib/prisma";
-import { GameCard } from "./GameCard";
+import { Link, createFileRoute } from "@tanstack/react-router";
+import { getSessionBoard } from "@/lib/actions";
+import { GameCard } from "../../../components/GameCard";
 
-export default async function SessionPage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
-  const { id } = await params;
+export const Route = createFileRoute("/session/$id/")({
+  loader: ({ params }) => getSessionBoard({ data: { id: params.id } }),
+  component: SessionPage,
+});
 
-  const session = await prisma.session.findUnique({
-    where: { id },
-    include: { players: true },
-  });
-  if (!session) notFound();
-
-  // The current round is the first one with games still to be played.
-  const nextPending = await prisma.game.findFirst({
-    where: { sessionId: id, status: "pending" },
-    orderBy: [{ round: "asc" }, { court: "asc" }],
-    select: { round: true },
-  });
-  const currentRound = nextPending?.round ?? null;
-
-  const roundGames = currentRound
-    ? await prisma.game.findMany({
-        where: { sessionId: id, round: currentRound },
-        include: { players: { include: { player: true } } },
-        orderBy: { court: "asc" },
-      })
-    : [];
+function SessionPage() {
+  const { id } = Route.useParams();
+  const { session, roundGames, currentRound } = Route.useLoaderData();
 
   const playingIds = new Set(
     roundGames.flatMap((g) => g.players.map((p) => p.playerId)),
@@ -38,7 +17,8 @@ export default async function SessionPage({
   const resting = session.players.filter((p) => !playingIds.has(p.id));
 
   const standings = [...session.players].sort(
-    (a, b) => b.wins - a.wins || a.losses - b.losses || b.gamesPlayed - a.gamesPlayed,
+    (a, b) =>
+      b.wins - a.wins || a.losses - b.losses || b.gamesPlayed - a.gamesPlayed,
   );
 
   const completed = currentRound === null;
@@ -57,11 +37,19 @@ export default async function SessionPage({
       .map((p) => p.player.name);
   }
 
+  // Team label for a side, in fixed mode. Undefined in rotation (no teams).
+  function sideTeamLabel(
+    game: (typeof roundGames)[number],
+    side: 1 | 2,
+  ): string | undefined {
+    return game.players.find((p) => p.side === side)?.player.team?.label;
+  }
+
   return (
     <main className="mx-auto w-full max-w-3xl px-5 py-8">
       <header className="mb-6">
         <Link
-          href="/"
+          to="/"
           className="text-sm text-black/50 dark:text-white/50 hover:underline"
         >
           ← New match
@@ -72,7 +60,8 @@ export default async function SessionPage({
             {session.players.length} players
           </h1>
           <Link
-            href={`/session/${id}/rankings`}
+            to="/session/$id/rankings"
+            params={{ id }}
             className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700"
           >
             🏆 Rankings
@@ -104,7 +93,8 @@ export default async function SessionPage({
             Every round has been played. See how everyone finished.
           </p>
           <Link
-            href={`/session/${id}/rankings`}
+            to="/session/$id/rankings"
+            params={{ id }}
             className="mt-4 inline-block rounded-lg bg-emerald-600 px-5 py-2.5 font-semibold text-white hover:bg-emerald-700"
           >
             View final rankings
@@ -121,8 +111,8 @@ export default async function SessionPage({
                 key={g.id}
                 gameId={g.id}
                 court={g.court}
-                side1={{ names: sideNames(g, 1) }}
-                side2={{ names: sideNames(g, 2) }}
+                side1={{ names: sideNames(g, 1), teamLabel: sideTeamLabel(g, 1) }}
+                side2={{ names: sideNames(g, 2), teamLabel: sideTeamLabel(g, 2) }}
                 winnerSide={g.winnerSide as 1 | 2 | null}
               />
             ))}

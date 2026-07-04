@@ -204,6 +204,35 @@ export function initialStacking(
   return state;
 }
 
+/**
+ * Draw a fresh round of matchups at random, favoring least-rested teams.
+ *
+ * Unlike king-of-the-court stacking, this ignores who won: every team is back
+ * in the pool, so a winning pair can be picked again. To keep sit-out time
+ * roughly even, teams are shuffled (random tie-break) and then stably sorted by
+ * games played, so the least-rested teams fill the courts first. Leftover teams
+ * rest, in that same order (front of the queue = played least, enters soonest).
+ */
+export function randomMatchRound(
+  teams: { id: string; gamesPlayed: number }[],
+  courts: number,
+): StackingState {
+  const ordered = shuffle(teams).sort((a, b) => a.gamesPlayed - b.gamesPlayed);
+  const activeCourts = courtsInUse(teams.length * 2, courts); // 2 teams/court
+  const state: StackingState = { courts: [], restQueue: [] };
+  let idx = 0;
+  for (let c = 1; c <= activeCourts; c++) {
+    state.courts.push({
+      court: c,
+      teamA: ordered[idx].id,
+      teamB: ordered[idx + 1].id,
+    });
+    idx += 2;
+  }
+  state.restQueue = ordered.slice(idx).map((t) => t.id);
+  return state;
+}
+
 export type StackingResult = { court: number; winner: "A" | "B" };
 
 /**

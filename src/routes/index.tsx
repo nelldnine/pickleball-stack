@@ -1,6 +1,11 @@
-import { SetupForm } from "@/app/components/SetupForm";
+import { createFileRoute } from "@tanstack/react-router";
+import { SetupForm } from "../components/SetupForm";
 
-export default function Home() {
+export const Route = createFileRoute("/")({
+  component: Home,
+});
+
+function Home() {
   return (
     <main className="mx-auto w-full max-w-xl px-5 py-10 sm:py-16">
       <header className="mb-8">

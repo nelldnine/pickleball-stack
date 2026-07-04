@@ -1,3 +1,4 @@
+import "@tanstack/react-start/server-only";
 import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
 import { PrismaClient } from "@/lib/generated/prisma/client";
 

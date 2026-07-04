@@ -15,9 +15,9 @@ equal amount — then tracks wins, losses, and the leaderboard.
     everyone, and sit-out (rest) time is shared evenly. Play is balanced so
     every player gets roughly the same number of games.
   - **Fixed partners** — players are auto-paired into fixed 2-person teams
-    (with a reshuffle before you start), then rotate by **win-lose stacking**
-    (king of the court): winners move up a court, losers move down, and the
-    bottom court's loser swaps out with a resting team.
+    (with a reshuffle before you start), then each round's matchups are drawn
+    **at random**. The draw favors least-rested teams so sit-out time stays
+    even, and a winning pair goes back in the pool and can be picked again.
 - **Live match board** — the current round's games per court, tap the winning
   team to record a result, see who's resting, and track progress round by round.
 - **Rankings** — a scoreboard of wins, losses, and win %, with the leader
@@ -28,7 +28,9 @@ and are reachable by URL.
 
 ## Tech stack
 
-- **[Next.js 16](https://nextjs.org)** (App Router, Server Actions, Turbopack)
+- **[TanStack Start](https://tanstack.com/start)** (full-stack SSR on
+  **[TanStack Router](https://tanstack.com/router)**, server functions) with
+  **[Vite](https://vite.dev)**
 - **React 19** + **TypeScript**
 - **[Tailwind CSS v4](https://tailwindcss.com)**
 - **[Prisma 7](https://www.prisma.io)** with the
@@ -60,9 +62,9 @@ Open [http://localhost:3000](http://localhost:3000) and set up a match.
 
 | Script             | Description                                        |
 | ------------------ | -------------------------------------------------- |
-| `npm run dev`      | Start the development server (Turbopack)           |
-| `npm run build`    | Production build                                    |
-| `npm run start`    | Start the production server                         |
+| `npm run dev`      | Start the Vite development server                   |
+| `npm run build`    | Production build (client + SSR bundles into `dist/`)|
+| `npm run start`    | Serve the production build on Node (`serve.js`)     |
 | `npm run lint`     | Run ESLint                                          |
 | `npm run db:push`  | Sync the SQLite database with `schema.prisma`      |
 | `npm run db:studio`| Open Prisma Studio to inspect the data             |
@@ -70,21 +72,33 @@ Open [http://localhost:3000](http://localhost:3000) and set up a match.
 ## Project structure
 
 ```
-app/
-  page.tsx                     # Setup screen
-  components/SetupForm.tsx     # Match setup form (client)
-  session/[id]/page.tsx        # Live match board
-  session/[id]/GameCard.tsx    # Tap-to-record game card (client)
-  session/[id]/rankings/       # Scoreboard
+src/
+  router.tsx                   # Router instance (getRouter)
+  routes/
+    __root.tsx                 # Document shell, <head>, fonts, styles
+    index.tsx                  # Setup screen ("/")
+    session/$id/index.tsx      # Live match board ("/session/$id")
+    session/$id/rankings.tsx   # Scoreboard ("/session/$id/rankings")
+  components/SetupForm.tsx     # Match setup form
+  components/GameCard.tsx      # Tap-to-record game card
+  styles/app.css               # Tailwind entry + theme
+  routeTree.gen.ts             # Generated route tree (gitignored)
 lib/
-  prisma.ts                    # PrismaClient singleton (better-sqlite3 adapter)
-  scheduling.ts                # Pure scheduling logic (rotation + stacking)
-  actions.ts                   # Server Actions (create session, record result)
+  prisma.ts                    # PrismaClient singleton (better-sqlite3 adapter, server-only)
+  scheduling.ts                # Pure scheduling logic (rotation + random matchups)
+  actions.ts                   # Server functions (createSession, recordResult, loaders)
   generated/prisma/            # Generated Prisma client (gitignored)
 prisma/
   schema.prisma                # Data model
+vite.config.ts                 # Vite + TanStack Start + Tailwind plugins
+serve.js                       # Production Node entry (serves the built handler)
 prisma.config.ts               # Prisma config (datasource URL for the CLI)
 ```
+
+Data flows through **server functions** in `lib/actions.ts`: route `loader`s call
+`getSessionBoard` / `getRankings` to read (server-side, so secrets and the
+database never reach the client), and the UI calls `createSession` /
+`recordResult` to mutate.
 
 ## Configuration
 

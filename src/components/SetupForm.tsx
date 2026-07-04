@@ -1,6 +1,5 @@
-"use client";
-
 import { useMemo, useState, useTransition } from "react";
+import { useServerFn } from "@tanstack/react-start";
 import { createSession } from "@/lib/actions";
 
 type Mode = "rotation" | "fixed";
@@ -15,6 +14,7 @@ function shuffleIndices(n: number): number[] {
 }
 
 export function SetupForm() {
+  const create = useServerFn(createSession);
   const [hours, setHours] = useState(3);
   const [courts, setCourts] = useState(2);
   const [gameMinutes, setGameMinutes] = useState(15);
@@ -77,15 +77,17 @@ export function SetupForm() {
       return;
     }
     startTransition(async () => {
-      const res = await createSession({
-        hours,
-        courts,
-        gameMinutes,
-        mode,
-        players: cleaned,
-        pairs: mode === "fixed" ? teamsPreview : undefined,
+      const res = await create({
+        data: {
+          hours,
+          courts,
+          gameMinutes,
+          mode,
+          players: cleaned,
+          pairs: mode === "fixed" ? teamsPreview : undefined,
+        },
       });
-      // On success the action redirects; only errors return here.
+      // On success the server function throws a redirect; only errors return here.
       if (res && "error" in res) setError(res.error);
     });
   }
@@ -155,7 +157,7 @@ export function SetupForm() {
             active={mode === "fixed"}
             onClick={() => setMode("fixed")}
             title="Fixed partners"
-            subtitle="Set teams, win-lose stacking"
+            subtitle="Set teams, random matchups each round"
           />
         </div>
       </div>
